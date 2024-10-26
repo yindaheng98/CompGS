@@ -19,11 +19,15 @@ Please download the datasets and unzip them.
 
 
 ## Installation dependencies
+Requirments: Python 3.10 and above
 1. Clone the repository
     ```bash
     git clone git@github.com:LiuXiangrui/CompGS.git
     ```
 2. Install Pytorch and other dependencies specified in the requirements.txt
+
+   > (Windows only) Please install [CompressAI](https://github.com/InterDigitalInc/CompressAI#installation) from source since wheels are available for Linux and MacOS.
+
 3. Install KNN and Splatting modules
     ```bash
     SET DISTUTILS_USE_SDK=1 # Windows only
