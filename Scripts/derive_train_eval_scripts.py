@@ -9,10 +9,15 @@ num_experiments = 5  # number of independent experiments for each configuration
 dataset_configs = {
     'TanksAndTemplates': {
         'dataset_root':  './data',
-        'experiments_root': './results/TanksAndTemples',
+        'experiments_root': './results/Videos',
         'scene': {
-            'Train': 'images',
-            'Truck': 'images'
+            'basketball/frame1': 'images',
+            'boxes/frame1': 'images',
+            'boxing/frame1': 'images',
+            'football/frame1': 'images',
+            'juggle/frame1': 'images',
+            'softball/frame1': 'images',
+            'tennis/frame1': 'images',
         },  # key is scene name, value is image folder name
         'config_path': './Configs/TanksAndTemplates.yaml'
     },

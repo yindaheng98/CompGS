@@ -31,7 +31,7 @@ class BaseDataset(Dataset):
         self.root, self.logger, self.device, self.z_near, self.z_far = root, logger, device, z_near, z_far
         self.logger.info('\nLoading data from {}...'.format(root))
 
-        self.sfm_point_cloud_path = os.path.join(root, 'sparse', '0', 'points3D.bin')
+        self.sfm_point_cloud_path = os.path.join(root, 'sparse', '0', 'points3D.ply')
 
         # load camera calibration information
         cam_mat_folder = os.path.join(root, 'sparse', '0')
@@ -96,7 +96,7 @@ class BaseDataset(Dataset):
         :param img_folder: path to the folder that contains images.
         """
         # load extrinsic data
-        extrinsic_filepath = os.path.join(cam_mat_folder, 'images.bin')
+        extrinsic_filepath = os.path.join(cam_mat_folder, 'images.txt')
         extrinsic_data = self.read_extrinsic_binary(extrinsic_filepath)
 
         img_names = {view_idx: extrinsic_data[view_idx]['img_name'] for view_idx in extrinsic_data}
@@ -106,14 +106,14 @@ class BaseDataset(Dataset):
         translation_vectors = {view_idx: extrinsic_data[view_idx]['translation_vector'] for view_idx in extrinsic_data}
 
         # load intrinsic data
-        intrinsic_filepath = os.path.join(cam_mat_folder, 'cameras.bin')
+        intrinsic_filepath = os.path.join(cam_mat_folder, 'cameras.txt')
         intrinsic_data = self.read_intrinsic_binary(intrinsic_filepath)
 
-        fov_x = {view_idx: intrinsic_data[extrinsic_data[view_idx]['camera_model_id']]['fov_x'] for view_idx in extrinsic_data}
-        fov_y = {view_idx: intrinsic_data[extrinsic_data[view_idx]['camera_model_id']]['fov_y'] for view_idx in extrinsic_data}
+        fov_x = {view_idx: intrinsic_data[view_idx]['fov_x'] for view_idx in extrinsic_data}
+        fov_y = {view_idx: intrinsic_data[view_idx]['fov_y'] for view_idx in extrinsic_data}
 
-        height = {view_idx: intrinsic_data[extrinsic_data[view_idx]['camera_model_id']]['height'] for view_idx in extrinsic_data}
-        width = {view_idx: intrinsic_data[extrinsic_data[view_idx]['camera_model_id']]['width'] for view_idx in extrinsic_data}
+        height = {view_idx: intrinsic_data[view_idx]['height'] for view_idx in extrinsic_data}
+        width = {view_idx: intrinsic_data[view_idx]['width'] for view_idx in extrinsic_data}
 
         # calculate projection matrices and camera centers
         proj_matrices = {view_idx: self.calculate_proj_mats(
@@ -205,21 +205,20 @@ class BaseDataset(Dataset):
         Read extrinsic parameters from binary file.
         """
         extrinsic_info = {}
-        with open(extrinsic_filepath, mode='rb') as fid:
-            num_views = self.read_next_bytes(fid, num_bytes=8, format_char_sequence='Q')[0]
-            for _ in range(num_views):
-                data = self.read_next_bytes(fid, num_bytes=64, format_char_sequence='idddddddi')
+        with open(extrinsic_filepath, mode='r') as fid:
+            while True:
+                line = fid.readline()
+                if not line:
+                    break
+                line = line.strip()
+                if len(line) <= 0 or line[0] == "#":
+                    continue  # skip empty lines and comments
+                data = line.split()
+                data = [int(data[0]), *[float(x) for x in data[1:8]], int(data[8]), data[9]]  # convert to int and float
                 view_id, rotation_quaternion_vector, translation_vector, camera_id = data[0], np.array(data[1:5]), np.array(data[5:8]), data[8]
                 rotation_mat = self.quaternion_to_rotation_matrix(quaternion=rotation_quaternion_vector).transpose()
 
-                img_name = ""
-                current_char = self.read_next_bytes(fid, 1, 'c')[0]
-                while current_char != b'\x00':  # look for the ASCII 0 entry
-                    img_name += current_char.decode('utf-8')
-                    current_char = self.read_next_bytes(fid, 1, 'c')[0]
-
-                num_points_2d = self.read_next_bytes(fid, num_bytes=8, format_char_sequence='Q')[0]
-                _ = self.read_next_bytes(fid, num_bytes=24 * num_points_2d, format_char_sequence='ddq' * num_points_2d)
+                img_name = data[9]
 
                 extrinsic_info[view_id] = {'view_id': view_id, 'camera_model_id': camera_id, 'img_name': img_name,
                                            'rotation_mat': rotation_mat, 'translation_vector': translation_vector}
@@ -230,19 +229,21 @@ class BaseDataset(Dataset):
         Read intrinsic parameters from binary file.
         """
         intrinsic_info = {}
-        with open(intrinsic_path, mode='rb') as fid:
-            num_camera_models = self.read_next_bytes(fid, num_bytes=8, format_char_sequence='Q')[0]
-            for _ in range(num_camera_models):
-                data = self.read_next_bytes(fid, num_bytes=24, format_char_sequence='iiQQ')
-                _, camera_model_id, width, height = data[0], data[1], data[2], data[3]
-                camera_model_name = CAMERA_MODEL_IDS[camera_model_id].model_name
-                assert camera_model_name in CAMERA_MODEL_NAMES, f'Camera model {camera_model_name} is not supported.'
-                num_camera_model_params = CAMERA_MODEL_IDS[camera_model_id].num_params
-                params = self.read_next_bytes(fid, num_bytes=8 * num_camera_model_params, format_char_sequence="d" * num_camera_model_params)
+        with open(intrinsic_path, mode='r') as fid:
+            while True:
+                line = fid.readline()
+                if not line:
+                    break
+                line = line.strip()
+                if len(line) <= 0 or line[0] == "#":
+                    continue  # skip empty lines and comments
+                data = line.split()
+                view_id, camera_model_id, width, height = int(data[0]), data[1], int(data[2]), int(data[3])
+                assert camera_model_id == "PINHOLE", "While the loader support other types, the rest of the code assumes PINHOLE"
                 # calculate field of view
-                fov_x = 2 * np.arctan(width / 2 / params[0])
-                fov_y = 2 * np.arctan(height / 2 / (params[0] if camera_model_name == 'SIMPLE_PINHOLE' else params[1]))
-                intrinsic_info[camera_model_id] = {'fov_x': fov_x, 'fov_y': fov_y, 'width': width, 'height': height}
+                fov_x = 2 * np.arctan(width / 2 / float(data[4]))
+                fov_y = 2 * np.arctan(height / 2 / float(data[5]))
+                intrinsic_info[view_id] = {'fov_x': fov_x, 'fov_y': fov_y, 'width': width, 'height': height}
         return intrinsic_info
 
     @staticmethod

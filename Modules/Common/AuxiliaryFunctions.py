@@ -37,22 +37,12 @@ def load_point_clouds(point_cloud_path: str) -> tuple:
     :param point_cloud_path: path to the binary file.
     :return: points and colors of the point clouds.
     """
-    assert point_cloud_path.endswith('.bin'), f"Point cloud file {point_cloud_path} must be a binary file."
-    points, colors = [], []
-    with open(point_cloud_path, 'rb') as f:
-        num_points = read_bytes(f, num_bytes=8, fmt="Q")[0]  # number of points
-        for idx in range(num_points):
-            point_info = read_bytes(f, num_bytes=43, fmt="QdddBBBd")
-            point = np.array(point_info[1:4])  # spatial location of the point (x, y, z)
-            color = np.array(point_info[4:7])  # color of the point (r, g, b)
-            _ = np.array(point_info[7])  # error of the point, just ignore it
-            track_length = read_bytes(f, num_bytes=8, fmt="Q")[0]  # track length, just ignore it
-            _ = read_bytes(f, num_bytes=8 * track_length, fmt="ii" * track_length)  # track elements, just ignore it
-            points.append(point)
-            colors.append(color)
-    points = np.stack(points, axis=0)  # shape (N, 3)
-    colors = np.stack(colors, axis=0)  # shape (N, 3)
-    return points, colors
+    assert point_cloud_path.endswith('.ply'), f"Point cloud file {point_cloud_path} must be a ply file."
+    plydata = PlyData.read(point_cloud_path)
+    vertices = plydata['vertex']
+    xyz = np.vstack([vertices['x'], vertices['y'], vertices['z']]).T
+    rgb = np.vstack([vertices['red'], vertices['green'], vertices['blue']]).T
+    return xyz, rgb
 
 
 def save_point_clouds(ply_filepath: str, points: np.ndarray, colors: np.ndarray) -> None:
