@@ -4,18 +4,13 @@ trainer_path = './Train.py'
 
 gpcc_codec_path = '~/mpeg-pcc-tmc13/build/tmc3/tmc3'  # path to GPCC codec
 
-num_experiments = 5  # number of independent experiments for each configuration
+num_experiments = 1  # number of independent experiments for each configuration
 
 dataset_configs = {
     'TanksAndTemplates': {
         'dataset_root':  './data',
         'experiments_root': './results/Videos',
         'scene': {
-            'basketball/frame1': 'images',
-            'boxes/frame1': 'images',
-            'boxing/frame1': 'images',
-            'football/frame1': 'images',
-            'juggle/frame1': 'images',
             'softball/frame1': 'images',
             'tennis/frame1': 'images',
         },  # key is scene name, value is image folder name
@@ -26,10 +21,10 @@ dataset_configs = {
 model_configs = {
     'Lambda0_001': {
         'override_cfgs': {'gpcc_codec_path': gpcc_codec_path, 'lambda_weight': 0.001}},
-    'Lambda0_005': {
-        'override_cfgs': {'gpcc_codec_path': gpcc_codec_path, 'lambda_weight': 0.005}},
-    'Lambda0_01': {
-        'override_cfgs': {'gpcc_codec_path': gpcc_codec_path, 'lambda_weight': 0.01}},
+    # 'Lambda0_005': {
+    #     'override_cfgs': {'gpcc_codec_path': gpcc_codec_path, 'lambda_weight': 0.005}},
+    # 'Lambda0_01': {
+    #     'override_cfgs': {'gpcc_codec_path': gpcc_codec_path, 'lambda_weight': 0.01}},
 }
 
 
