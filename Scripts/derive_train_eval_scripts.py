@@ -13,6 +13,13 @@ dataset_configs = {
         'scene': {
             'softball/frame1': 'images',
             'tennis/frame1': 'images',
+            'discussion/frame1': 'images',
+            'stepin/frame1': 'images',
+            'trimming/frame1': 'images',
+            'vrheadset/frame1': 'images',
+            'boxing/frame1': 'images',
+            'taekwondo/frame1': 'images',
+            'walking/frame1': 'images',
         },  # key is scene name, value is image folder name
         'config_path': './Configs/TanksAndTemplates.yaml'
     },
