@@ -36,14 +36,14 @@ class BaseDataset(Dataset):
         # load camera calibration information
         cam_mat_folder = os.path.join(root, 'sparse', '0')
         img_folder = os.path.join(root, image_folder)
-        samples = sorted(self.load_samples(cam_mat_folder=cam_mat_folder, img_folder=img_folder), key=lambda x: x.img_name)
+        samples = self.load_samples(cam_mat_folder=cam_mat_folder, img_folder=img_folder)
 
         self.train_samples = {}  # training samples
         self.test_samples = {}  # test samples
 
         # train / eval split
-        self.train_samples = {idx: sample for idx, sample in enumerate(samples) if idx % eval_interval != 0}
-        self.test_samples = {idx: sample for idx, sample in enumerate(samples) if idx % eval_interval == 0}
+        self.train_samples = {idx: sample for idx, sample in enumerate(samples[1:])}
+        self.test_samples = {idx: sample for idx, sample in enumerate(samples[:1])}
 
         # calculate the radius of the sphere that contains all training camera centers
         self.screen_extent = self.calculate_camera_sphere_radius()
