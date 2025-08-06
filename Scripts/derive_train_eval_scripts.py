@@ -57,9 +57,9 @@ if __name__ == '__main__':
     if os.name == 'posix':  # linux
         with open('run.sh', 'w') as f:
             for cmd in cmd_list:
-                f.write(f'{cmd}/n')
+                f.write(f'{cmd}\n')
     else:  # windows
         with open('run.bat', 'w') as f:
             for cmd in cmd_list:
-                f.write(f'{cmd}/n')
+                f.write(f'{cmd}\n')
     print('Write commands to shell script successfully, please run it to start experiments.')
