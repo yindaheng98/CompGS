@@ -1,46 +1,21 @@
 import os
 
-trainer_path = r'..\Train.py'
+trainer_path = './Train.py'
 
-gpcc_codec_path = r'C:\Users\XiangruiLIU\Desktop\mpeg-pcc-tmc13\build\tmc3\Release\tmc3.exe'  # path to GPCC codec
+gpcc_codec_path = '~/mpeg-pcc-tmc13/build/tmc3/tmc3'  # path to GPCC codec
 
 num_experiments = 5  # number of independent experiments for each configuration
 
 dataset_configs = {
     'TanksAndTemplates': {
-        'dataset_root':  r'D:\T2T\Datasets',
-        'experiments_root': r'D:\T2T\Results3',
+        'dataset_root':  './data',
+        'experiments_root': './results/TanksAndTemples',
         'scene': {
             'Train': 'images',
             'Truck': 'images'
         },  # key is scene name, value is image folder name
-        'config_path': r'..\Configs\TanksAndTemplates.yaml'
+        'config_path': './Configs/TanksAndTemplates.yaml'
     },
-    'DeepBlending': {
-        'dataset_root': r'D:\DB\Dataset',
-        'experiments_root': r'D:\DB\Results2',
-        'scene': {
-            'drjohnson': 'images',
-            'playroom': 'images'
-        },  # key is scene name, value is image folder name
-        'config_path': r'..\Configs\DeepBlending.yaml'
-    },
-    'MipNeRF360': {
-        'dataset_root':  r'D:\MipNeRF360\Dataset',
-        'experiments_root': r'D:\MipNeRF360\Results3',
-        'scene': {
-            'bicycle': 'images_4',
-            'flowers': 'images_4',
-            'garden': 'images_4',
-            'stump': 'images_4',
-            'treehill': 'images_4',
-            'room': 'images_2',
-            'counter': 'images_2',
-            'kitchen': 'images_2',
-            'bonsai': 'images_2'
-        },  # key is scene name, value is image folder name
-        'config_path': r'..\Configs\MipNeRF360.yaml'
-    }
 }
 
 model_configs = {
@@ -82,9 +57,9 @@ if __name__ == '__main__':
     if os.name == 'posix':  # linux
         with open('run.sh', 'w') as f:
             for cmd in cmd_list:
-                f.write(f'{cmd}\n')
+                f.write(f'{cmd}/n')
     else:  # windows
         with open('run.bat', 'w') as f:
             for cmd in cmd_list:
-                f.write(f'{cmd}\n')
+                f.write(f'{cmd}/n')
     print('Write commands to shell script successfully, please run it to start experiments.')
