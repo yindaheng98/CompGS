@@ -11,8 +11,6 @@ dataset_configs = {
         'dataset_root':  './data',
         'experiments_root': './results/Videos',
         'scene': {
-            'softball/frame1': 'images',
-            'tennis/frame1': 'images',
             'discussion/frame1': 'images',
             'stepin/frame1': 'images',
             'trimming/frame1': 'images',
