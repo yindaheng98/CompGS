@@ -18,6 +18,12 @@ dataset_configs = {
             'boxing/frame1': 'images',
             'taekwondo/frame1': 'images',
             'walking/frame1': 'images',
+            'coffee_martini/frame1': 'images',
+            'cook_spinach/frame1': 'images',
+            'cut_roasted_beef/frame1': 'images',
+            'flame_salmon_1/frame1': 'images',
+            'flame_steak/frame1': 'images',
+            'sear_steak/frame1': 'images',
         },  # key is scene name, value is image folder name
         'config_path': './Configs/TanksAndTemplates.yaml'
     },
